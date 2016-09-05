@@ -17,6 +17,17 @@ include "connect.php";
 							{
 								echo '<div style="padding-top:15px; padding-bottom:15px;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
 							}
+							if(isset($_SESSION['signed_in']))
+							{
+								echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><h5><a href="useradmin.php?id='.$_SESSION['user_id'].'">Manage Profile</h5></a></div> ';
+							}
+							if(isset($_SESSION['user_level']))
+							{
+								if(($_SESSION['user_level']) == 'Admin')
+								{
+									echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><div style="padding-right:10px;"><h5><a id="admin1" href="admin.php"> Admin </a></h5></div></div> ';
+								}								
+							}							
 							?>
 						</div>
 					</div>						
@@ -33,15 +44,22 @@ include "connect.php";
 								</div>
 							</div>
 							<div class="col-xs-4">
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+								<!--<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
 									<a id="user8" href="create_cat.php" class="btn btn-load">New Category</a>
-								</div>	
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a>
-								</div>
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user8" href="topic.php" class="btn btn-load">New Post</a>
-								</div>
+								</div>-->
+								<?php
+							if(isset($_SESSION['user_level']))
+							{								
+									if ($_SESSION['user_level'] != 'Readonly')
+									{
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a></div>';
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user8" href="post.php" class="btn btn-load">New Post</a>
+										</div>';
+									}
+							}
+								?>
 								</div>					
 						</div>
 				    </div>
@@ -59,50 +77,28 @@ include "connect.php";
 								<!-- blog-post -->
 								
 <?php
-if (isset($_POST['fname_edit'])) {	
-		$first = mysqli_real_escape_string($db, $_POST['fname_edit']);
-		$last = mysqli_real_escape_string($db, $_POST['lname_edit']);
-		//$email = mysqli_real_escape_string($db, $_POST['email_edit']);
-		$level = mysqli_real_escape_string($db, $_POST['level_edit']);
-							
-		$sql = 'UPDATE users SET user_fname="' . $first . '",user_lname="' . $last . '", user_level="' . $level . '" WHERE user_id="'  . $_POST['uid'] . '"';
-		
-		if(!($stmt23 = $db->query($sql)))
-		{
-			echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
-		}
-		else
-		{
-			echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Admin</a>.</h4>';
-			//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
-		}
-    }
-    
-if (isset($_POST['pcontent_edit'])) {
-		$content = mysqli_real_escape_string($db, $_POST['fname_edit']);
-		//$topic = mysqli_real_escape_string($db, $_POST['lname_edit']);
-		$title = mysqli_real_escape_string($db, $_POST['ptitle_edit']);
-		
-		$sql2 = 'UPDATE posts SET post_content="' . $content . '", post_title="' . $title . '", WHERE user_id="' . $_POST['pid'] . '"';
 
-		if(!($stmt24 = $db->query($sql2)))
-		{
-			echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
-		}
-		else
-		{
-			echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Home</a>.</h4>';
-			//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
-		}
-	}
 
 	if(!(isset($_SESSION['signed_in'])))
 	{
 		//the user is not signed in
-		echo 'Sorry, you have to be a <a href="login.php">signed in Admin</a>.';
+		echo 'Sorry, you have to be <a href="login.php">signed in</a>.';
 	}
 	else
-	{	
+	{	if($_SESSION['signed_in'] == "Admin")
+		{
+			echo '<div class="container"><div class="row"><div style="margin:0 auto;">';
+			
+				$sql5 = "SELECT user_id, user_name, user_fname, user_lname FROM users";
+				$stmt = $db->query($sql5);
+					echo '<select name="selecta" id="selecta"><option selected value="">Select User</option>';
+						while($user_array = $stmt->fetch_assoc())
+						{
+							echo '<option value="admin.php?id=' . $user_array['user_id'] . '">' . $user_array['user_name'] . ' (' .$user_array['user_lname']. ', ' .$user_array['user_fname']. ')</option>';
+						}
+						echo '</select></div></div></div>';
+			
+			
 			if(!(empty($_GET['id'])))
 			{	
 				if($_SERVER['REQUEST_METHOD'] != 'POST')
@@ -126,7 +122,7 @@ if (isset($_POST['pcontent_edit'])) {
 							<input type="hidden" name="uid" form="userform" value="'. $_GET['id'] .'"></input>	
 							</tr>
 							</table>
-							<hr style="width:40%"><br><br><input type="submit" value="Save User" class="btn btn-load"/>
+							<hr style="width:40%"><input type="submit" value="Save User" class="btn btn-load"/>
 							</form>';
 					}
 					$stmt22->free();
@@ -150,23 +146,70 @@ if (isset($_POST['pcontent_edit'])) {
 							echo '<table>
 							<tr>
 							<th>title</th><th>content</th>
-							</tr>
-							<tr>';
+							</tr><tr>';
 							while ($post_array = $post->fetch_assoc()) {
 								echo '<td><input name="ptitle_edit" form="postform" value="' . $post_array['post_title'] . '"></input></td>
-								<td><textarea cols="50" name="pcontent_edit" form="postform" >'. $post_array['post_content'].'</textarea></td>';
+								<td><textarea cols="50" name="pcontent_edit" form="postform" >'. $post_array['post_content'].'</textarea></td>
+								<input type="hidden" name="pid" form="postform" value="'. $row['post_id'] .'"></input>';
 							}
-							echo '<input type="hidden" name="pid" form="postform" value="'. $_GET['id'] .'"></input>
-
-							</tr></table>
-							<hr style="width:40%"><br><br><input type="submit" value="Save" class="btn btn-load"/>
+							echo '</tr></table>
+							<hr style="width:40%"><input type="submit" value="Save" class="btn btn-load"/>
 							</form>';															
 					}
 					$stmt25->free();
 					$post->free();
 				}
+				else
+				{
+					
+						if (isset($_POST['pid'])) {
+							$content = mysqli_real_escape_string($db, $_POST['pcontent_edit']);
+							$title = mysqli_real_escape_string($db, $_POST['ptitle_edit']);
+							
+							$sqluser = 'SELECT x.user_id';
+							
+							$sql2 = 'UPDATE posts SET post_content="'.$content.'", post_title="'.$title.'" WHERE post_id="'.$_POST['pid'].'"';
+							
+							if(!($stmt24 = $db->query($sql2)))
+							{
+								echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
+							}
+							else
+							{
+								echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Admin</a>.</h4>';
+								//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
+							}
+						}
+					
+					if (isset($_POST['uid'])) {	
+							$first = mysqli_real_escape_string($db, $_POST['fname_edit']);
+							$last = mysqli_real_escape_string($db, $_POST['lname_edit']);
+							//$email = mysqli_real_escape_string($db, $_POST['email_edit']);
+							$level = mysqli_real_escape_string($db, $_POST['level_edit']);
+												
+							$sql = 'UPDATE users SET user_fname="' . $first . '",user_lname="' . $last . '", user_level="' . $level . '" WHERE user_id="'  . $_POST['uid'] . '"';
+							
+							if(!($stmt23 = $db->query($sql)))
+							{
+								echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
+							}
+							else
+							{
+								echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Admin</a>.</h4>';
+								//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
+							}
+						}
+						
+					
+				}
 
 			}
+
+		}
+		else
+		{
+			echo 'Sorry, you have to be an <a href="signout.php">Admin!</a>.';
+		}
 	}						
 ?>
 							</ul>
@@ -299,5 +342,6 @@ if (isset($_POST['pcontent_edit'])) {
 					</div>
 				</div>
 			</main>
+			
 			
 <?php include "footer.php"; ?>

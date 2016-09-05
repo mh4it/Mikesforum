@@ -10,12 +10,23 @@ include "header.php";
 							<?php
 							if(isset($_SESSION['signed_in']))
 							{
-								echo '<div style="padding-top:15px; padding-bottom:15px;"><h4>Hello ' . $_SESSION['user_name'] . '. Not you? <a href="signout.php">Sign out</a></h4></div>';
+								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4>Hello ' . $_SESSION['user_name'] . '. Not you? <a href="signout.php">Sign out</a></h4></div>';
 							}
 							else
 							{
-								echo '<div style="padding-top:15px; padding-bottom:15px;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
+								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
 							}
+							if(isset($_SESSION['signed_in']))
+							{
+								echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><h5><a href="useradmin.php?id='.$_SESSION['user_id'].'">Manage Profile</h5></a></div> ';
+							}
+							if(isset($_SESSION['user_level']))
+							{
+								if(($_SESSION['user_level']) == 'Admin')
+								{
+									echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><div style="padding-right:10px;"><h5><a id="admin1" href="admin.php"> Admin </a></h5></div></div> ';
+								}								
+							}						
 							?>
 						</div>
 					</div>						
@@ -32,9 +43,19 @@ include "header.php";
 								</ul>	
 							</div>
 							<div class="col-xs-3">
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user6" href="topic.php" class="btn btn-load">New Post</a>
-								</div>
+								<?php
+							if(isset($_SESSION['user_level']))
+							{								
+									if ($_SESSION['user_level'] != 'Readonly')
+									{
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a></div>';
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user8" href="post.php" class="btn btn-load">New Post</a>
+										</div>';
+									}
+							}
+								?>
 							</div>							
 						</div>
 				    </div>
@@ -51,85 +72,141 @@ include "header.php";
 							
 								<!-- blog-post -->
 								
-								<?php
-								
-								if(!(isset($_SESSION['signed_in'])))
-								{
-									//the user is not signed in
-									echo 'Sorry, you have to be <a href="login.php">signed in</a> to read or post.';
-									
-								}
-								else
-								{		
-									if(!(empty($_GET['id'])))
-									{	
-										//No PID Make a Post
-										if($_SERVER['REQUEST_METHOD'] != 'POST')
-										{
-											$sql = "SELECT * FROM posts WHERE post_id=" . $_GET['pid'];
-											//Alternate and triple
-											$stmt17 = $db->query($sql);
-											while($row = ($stmt17->fetch_assoc()))
-											{
-												echo '<form method="post" action="" class="contact-form2">
-													<h2>Replying to:' . $row['post_title'] . '</h2><hr style="width:40%">
-													<br><br>Original Post:<br>'; 
-												//Needs to be required
-												echo '<table><tr><td>' . $row['post_content'] . '</td></tr></table>';
-													
-												echo '<br><br><hr style="width:40%">New Post: <textarea cols="50" name="post_content" /></textarea>
-													<br><br><br><input type="submit" value="Post Reply" class="btn btn-load"/>
-												 </form>';	
+<?php
 
-											}
-											 $stmt17->free();
-										}
-										else
-										{
-												
-											$sql = "SELECT * FROM posts WHERE post_id=" . $_GET['pid'];
-											//Alternate and triple
-											$stmt18 = $db->query($sql);
-											while($row = ($stmt18->fetch_assoc()))
-											{
-												$tID = $row['post_topic'];
-												$pTitle = 'RE:' . $row['post_title'];
-											}
-											$stmt18->free();
+if(!(isset($_SESSION['signed_in'])))
+{
+	//the user is not signed in
+	echo 'Sorry, you have to be <a href="login.php">signed in</a> to read or post.';
+	
+}
+else
+{		
+	if(!(empty($_GET['id'])))
+	{	
+		//No PID Make a Post
+		if($_SERVER['REQUEST_METHOD'] != 'POST')
+		{
+			$sql = "SELECT * FROM posts WHERE post_id=" . $_GET['pid'];
+			//Alternate and triple
+			$stmt17 = $db->query($sql);
+			while($row = ($stmt17->fetch_assoc()))
+			{
+				echo '<form method="post" action="" class="contact-form2">
+					<h2>Replying to:' . $row['post_title'] . '</h2><hr style="width:40%">
+					<br><br>Original Post:<br>'; 
+				//Needs to be required
+				echo '<table><tr><td>' . $row['post_content'] . '</td></tr></table>';
+					
+				echo '<br><br><hr style="width:40%">New Post: <textarea cols="70" name="post_content" /></textarea>
+					<br><br><br><input type="submit" value="Post Reply" class="btn btn-load"/>
+				 </form>';	
 
-											$sql2 = 'INSERT INTO
-														posts(post_content,
-															  post_date,
-															  post_topic,
-															  post_by,
-															  post_cat,
-															  post_title,
-															  post_reply)
-													VALUES
-														("' . mysql_real_escape_string($_POST['post_content']) . '",
-															  NOW(),
-															  "' . $tID . '",
-															  "' . $_SESSION['user_id'] . '",
-															  "' . $_GET['pid'] . '",
-															  "' . $pTitle . '",
-															  1
-														)';
-											
+			}
+			 $stmt17->free();
+		}
+		else
+		{
+				
+			$sql = "SELECT * FROM posts WHERE post_id=" . $_GET['pid'];
+			//Alternate and triple
+			$stmt18 = $db->query($sql);
+			while($row = ($stmt18->fetch_assoc()))
+			{
+				$tID = $row['post_topic'];
+				$pTitle = ' RE: ' . $row['post_title'];
+			}
+			$stmt18->free();
+			
+			$pcontent = mysqli_real_escape_string($db, $_POST['post_content']);
 
-											if(!($stmt19 = $db->query($sql2)))
-											{
-												echo 'An error occured while inserting your post. Please try again later.';
-											}
-											else
-											{
+			$sql2 = 'INSERT INTO
+						posts(post_content,
+							  post_date,
+							  post_topic,
+							  post_by,
+							  post_cat,
+							  post_title,
+							  post_reply)
+					VALUES
+						("' . $pcontent . '",
+							  NOW(),
+							  "' . $tID . '",
+							  "' . $_SESSION['user_id'] . '",
+							  "' . $_GET['pid'] . '",
+							  "' . $pTitle . '",
+							  1
+						)';
+			
 
-												echo 'You have successfully posted <a href="topic.php?id=' . $_GET['id'] . '"> Back To Thread</a>.';
-											}
-												
-										}
-									}
-									
-								}								
+			if(!($stmt19 = $db->query($sql2)))
+			{
+				echo 'An error occured while inserting your post. Please try again later.';
+			}
+			else
+			{
+				echo 'You have successfully posted <a href="topic.php?id=' . $_GET['id'] . '"> Back To Thread</a>.';
+			}
+		}
+	}
+	else
+	{
+	
+		//No PID Make a Post
+		if($_SERVER['REQUEST_METHOD'] != 'POST')
+		{
+			
+			$sql = "SELECT topic_id, topic_subject FROM topics";
+			$stmt12 = $db->query($sql);
+			echo '<form method="post" action="" class="contact-form2">
+				Thread: <input type="text" name="post_title" />
+				<br><br>Topic:'; 
+			//Needs to be required
+			echo '<select name="topiclist">';
+				while($topic_array = $stmt12->fetch_assoc())
+				{
+					echo '<option value="' . $topic_array['topic_id'] . '">' . $topic_array['topic_subject'] . '</option>';
+				}
+			echo '</select>';	
+				
+			echo '<br><br><br>Post: <textarea cols="50" name="post_content" /></textarea>
+				<br><br><br><input type="submit" value="Post" class="btn btn-load"/>
+			 </form>';									
+			$stmt12->free();
+		}
+		else
+		{
+
+			//post_id 	post_content 	post_date 	post_topic 	post_by 	post_cat											
+			$sql2 = 'INSERT INTO
+						posts(post_content,
+							  post_date,
+							  post_topic,
+							  post_by,
+							  post_cat,
+							  post_title,
+							  post_reply)
+					VALUES
+						("' . mysql_real_escape_string($_POST['post_content']) . '",
+							  NOW(),
+							  "' . $_POST['topiclist'] . '",
+							  "' . $_SESSION['user_id'] . '",
+							  0,
+							  "' . $_POST['post_title'] . '",
+							  0
+						)';
+
+			if(!($stmt15 = $db->query($sql2)))
+			{
+				echo 'An error occured while inserting your post. Please try again later.';
+			}
+			else
+			{
+				echo 'You have successfully posted <a href="index.php"> Back To Home</a>.';
+			}
+		}
+	}
+}								
 ?>
 								
 							</ul>

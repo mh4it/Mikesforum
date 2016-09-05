@@ -91,13 +91,32 @@
 		</div>
 		<div class="fa fa-chevron-up" id="gotoTop" style="display: none;"></div>
 	</div>
+
 	<!-- include jQuery library -->
 	<script type="text/javascript" src="http://localhost/forum/js/jquery-1.11.3.min.js"></script>
 	<!-- include custom JavaScript -->
 	<script type="text/javascript" src="http://localhost/forum/js/jquery.main.js"></script>
 	<!-- include JavaScript Plugins-->
 	<script type="text/javascript" src="http://localhost/forum/js/plugins.js"></script>
+
 <script type="text/javascript">
+
+// get your select element and listen for a change event on it
+$('#selecta').change(function() {
+  // set the window's location property to the value of the option the user has selected
+  location.href = $(this).val();
+});
+
+
+// get your select element and listen for a change event on it
+$('#selectb').change(function() {
+  // set the window's location property to the value of the option the user has selected
+  location.href = $(this).val();
+});
+
+</script>	
+	
+	<script type="text/javascript">
     var a = document.getElementById('user_level').value;
 	var b = "Admin";
 	var c = "Readonly";
@@ -105,22 +124,14 @@
     {
         document.getElementById('admin1').style.display = 'none';
         document.getElementById('admin2').style.display = 'none';
-        //document.getElementById('delete1').style.display = 'none';
-		
     }
 	if(a == c)
 	{
-        document.getElementById('user1').style.display = 'none';
-        document.getElementById('user2').style.display = 'none';
-        document.getElementById('user3').style.display = 'none';
-        document.getElementById('user4').style.display = 'none';		
-        document.getElementById('user5').style.display = 'none';		
-        document.getElementById('user6').style.display = 'none';
-        document.getElementById('user7').style.display = 'none';		
-        document.getElementById('user8').style.display = 'none';		
-        document.getElementById('delete1').style.display = 'none';		
-
+		document.getElementById('delete1').style.display = 'none';		        
+		document.getElementById('user6').style.display = 'none';
+        document.getElementById('user8').style.display = 'none';
 	}
 </script>
+
 </body>
 </html>

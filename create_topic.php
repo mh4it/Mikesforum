@@ -7,7 +7,7 @@ include 'header.php';
 echo '<h2>Create a topic</h2>';
 echo '<div style="margin:0 auto; text-align:center;">';
 
-if(!(isset($_SESSION['signed_in']))
+if(!(isset($_SESSION['signed_in'])))
 {
 	//the user is not signed in
 	echo 'Sorry, you have to be <a href="login.php">signed in</a> to create a topic.';

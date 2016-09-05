@@ -33,12 +33,19 @@ include "connect.php";
 								</div>
 							</div>
 							<div class="col-xs-4">
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user6" href="createtopic.php" class="btn btn-load">New Topic</a>
-								</div>
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user8" href="topic.php" class="btn btn-load">New Post</a>
-								</div>
+								<?php
+							if(isset($_SESSION['user_level']))
+							{								
+									if ($_SESSION['user_level'] != 'Readonly')
+									{
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a></div>';
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user8" href="post.php" class="btn btn-load">New Post</a>
+										</div>';
+									}
+							}
+								?>
 							</div>					
 						</div>
 				    </div>
@@ -56,23 +63,6 @@ include "connect.php";
 								<!-- blog-post -->
 								
 <?php
-
-if (isset($_POST['pcontent_edit'])) {
-		$content = mysqli_real_escape_string($db, $_POST['pcontent_edit']);
-		$title = mysqli_real_escape_string($db, $_POST['ptitle_edit']);
-
-		$sql2 = 'UPDATE posts SET post_content="' . $content . '", post_title="' . $title . '" WHERE user_id="' . $_POST['pid'] . '"';
-
-		if(!($stmt27 = $db->query($sql2)))
-		{
-			echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
-		}
-		else
-		{
-			echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Home</a>.</h4>';
-			//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
-		}
-	}
 
 	if(!(isset($_SESSION['signed_in'])))
 	{
@@ -110,8 +100,7 @@ if (isset($_POST['pcontent_edit'])) {
 			$stmt22->free();
 			echo '<br><hr style="width:75%;"><hr style="width:75%;"><br>';
 
-			//For Posts
-			//All post_ids of user
+			
 			$sql3 = "SELECT post_id FROM posts WHERE post_by='" . $_GET['id'] . "'";
 			$stmt25 = $db->query($sql3);
 			
@@ -143,6 +132,7 @@ if (isset($_POST['pcontent_edit'])) {
 			//$stmt25->free();
 			//$post->free();
 		}
+		
 		else if (isset($_POST['user_pass']))
 		{
 			$errors = array(); /* declare the array for later use */
@@ -189,6 +179,24 @@ if (isset($_POST['pcontent_edit'])) {
 				}
 
 			}
+			
+			else if (isset($_POST['pcontent_edit'])) {
+			$content = mysqli_real_escape_string($db, $_POST['pcontent_edit']);
+			$title = mysqli_real_escape_string($db, $_POST['ptitle_edit']);
+
+			$sql2 = 'UPDATE posts SET post_content="' . $content . '", post_title="' . $title . '" WHERE post_id="' . $_POST['pid'] . '"';
+
+			if(!($stmt27 = $db->query($sql2)))
+			{
+				echo '<h4>An error occured while saving changes. Please try to press back to access form data.</h4>';
+			}
+			else
+			{
+				echo '<h4>You have successfully saved changes <a href="admin.php?id=' . $_GET['id'] . '"> Back To Home</a>.</h4>';
+				//header('Location: http://www.adprose.org/forum/admin.php?=' . $_GET['id'] . '', true);
+			}
+		}
+			
 		}	
 	}						
 ?>

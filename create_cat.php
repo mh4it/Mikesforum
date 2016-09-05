@@ -3,14 +3,10 @@
 include 'connect.php';
 include 'header.php';
 
-$sql = "SELECT cat_id, cat_name, cat_description, FROM categories"; 
-
-$stmt4 = $db->prepare($sql);
-$stmt4->execute();
-$stmt4->store_result();
+$sql = "SELECT cat_id, cat_name, cat_description FROM categories"; 
 
 
-if(!$stmt4)
+if(!($stmt4 = $db->query($sql)))
 {
 	echo 'The categories could not be displayed, please try again later.';
 }
@@ -46,9 +42,7 @@ else
 		}
 	}
 }
-
-$stmt4->free_result();
-$stmt4->close();
+//$stmt4->free();
 
 include 'footer.php';
 ?>

@@ -4,14 +4,25 @@
 		<div id="userbar" class="container">
 			<div class="row">
 				<?php
-				if(isset($_SESSION['signed_in']))
-				{
-					echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4>Hello ' . $_SESSION['user_name'] . '. Not you? <a href="signout.php">Sign out</a></h4></div>';
-				}
-				else
-				{
-					echo '<div style="padding-top:15px; padding-bottom:15px;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
-				}
+							if(isset($_SESSION['signed_in']))
+							{
+								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4>Hello ' . $_SESSION['user_name'] . '. Not you? <a href="signout.php">Sign out</a></h4></div>';
+							}
+							else
+							{
+								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
+							}
+							if(isset($_SESSION['signed_in']))
+							{
+								echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><h5><a href="useradmin.php?id='.$_SESSION['user_id'].'">Manage Profile</h5></a></div> ';
+							}
+							if(isset($_SESSION['user_level']))
+							{
+								if(($_SESSION['user_level']) == 'Admin')
+								{
+									echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><div style="padding-right:10px;"><h5><a id="admin1" href="admin.php"> Admin </a></h5></div></div> ';
+								}								
+							}						
 				?>
 			</div>
 		</div>	
@@ -28,9 +39,19 @@
 								</div>
 							</div>
 							<div class="col-xs-3">
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user1" href="create_topic.php" class="btn btn-load">Create Topic</a>
-								</div>
+								<?php
+							if(isset($_SESSION['user_level']))
+							{								
+									if ($_SESSION['user_level'] != 'Readonly')
+									{
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a></div>';
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user8" href="post.php" class="btn btn-load">New Post</a>
+										</div>';
+									}
+							}
+								?>
 							</div>
 						</div>
 				    </div>

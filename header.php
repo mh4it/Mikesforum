@@ -39,6 +39,7 @@
 		}
 	</style>
 	
+	
 </head>
 <body>
 	<!-- Page pre loader -->
@@ -71,11 +72,11 @@
 							</div>
 							<div class="holder">
 								<!-- icon list -->
-								<ul class="list-unstyled icon-list">
+								<!--<ul class="list-unstyled icon-list">
 									<li>
 										<a href="#" class="search-opener opener-icons"><i class="fa fa-search"></i></a>
 									</li>
-								</ul>
+								</ul>-->
 								<!-- main navigation of the page -->
 								<nav id="nav">
 									<a href="#" class="nav-opener"><i class="fa fa-bars"></i></a>
@@ -92,12 +93,12 @@
 												<a href="#">My Work</a>
 												<div class="drop" style="margin-left:-50px;">
 															<ul class="list-unstyled">
-																<li><a href="stoneoaktreefarm.com" target="_blank">Stone Oak Tree Farm</a></li>
-																<li><a href="adprose.org/waldenhumanewp" target="_blank">Humane Society of Walden</a></li>
-																<li><a href="gidedental.com" target="_blank">gIDE Dental</a></li>
-																<li><a href="gidephotogallery.com" target="_blank">gIDE Photogallery</a></li>
-																<li><a href="padreguadalupe.com" target="_blank">Padre Guadalupe</a></li>
-																<li><a href="https://avaaz.org/en/petition/stop_human_abuse" target="_blank">Human Rights Petition</a></li>
+																<li><a href="http://www.stoneoaktreefarm.com" target="_blank">Stone Oak Tree Farm</a></li>
+																<li><a href="http://www.adprose.org/waldenhumanewp" target="_blank">Humane Society of Walden</a></li>
+																<li><a href="http://www.gidedental.com" target="_blank">gIDE Dental</a></li>
+																<li><a href="http://www.gidephotogallery.com" target="_blank">gIDE Photogallery</a></li>
+																<li><a href="http://www.padreguadalupe.com" target="_blank">Padre Guadalupe</a></li>
+																<li><a href="https://www.avaaz.org/en/petition/stop_human_abuse" target="_blank">Human Rights Petition</a></li>
 																<!--<li><a href="contact.html">contact</a></li>-->
 															</ul>
 												</div>

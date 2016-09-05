@@ -16,14 +16,19 @@ include "header.php";
 							}
 							else
 							{
-								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h4><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h4></div>';
+								echo '<div style="padding-top:15px; padding-bottom:15px; float:left;"><h5><a href="login.php">Sign in</a> or <a href="createuser.php">create an account</a>.</h5></div>';
 							}
 							if(isset($_SESSION['signed_in']))
 							{
 								echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><h5><a href="useradmin.php?id='.$_SESSION['user_id'].'">Manage Profile</h5></a></div> ';
 							}
-							
-
+							if(isset($_SESSION['user_level']))
+							{
+								if(($_SESSION['user_level']) == 'Admin')
+								{
+									echo '<div style="float:right;padding-top:15px; padding-bottom:15px;"><div style="padding-right:10px;"><h5><a id="admin1" href="admin.php"> Admin </a></h5></div></div> ';
+								}								
+							}
 							?>
 						</div>
 					</div>						
@@ -40,9 +45,19 @@ include "header.php";
 								</div>
 							</div>
 							<div class="col-xs-3">
-								<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
-									<a id="user3" href="topic.php" class="btn btn-load">New Post</a>
-								</div>
+								<?php
+							if(isset($_SESSION['user_level']))
+							{								
+									if ($_SESSION['user_level'] != 'Readonly')
+									{
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user6" href="create_topic.php" class="btn btn-load">New Topic</a></div>';
+										echo '<div style="background-color: #ffffff; border: 1px solid black; opacity: 0.6; margin:15px; text-align:center;">
+											<a id="user8" href="post.php" class="btn btn-load">New Post</a>
+										</div>';
+									}
+							}
+								?>
 							</div>							
 						</div>
 				    </div>
@@ -58,19 +73,6 @@ include "header.php";
 							<ul class="blog-accordion list-unstyled">-->
 <?php
 
-if (isset($_POST['del'])) {
-	$post_id = $_POST['del'];
-	$sql = "DELETE
-			FROM posts
-			WHERE post_id ='".$post_id."'";
-	$sql2 = "DELETE
-			FROM posts
-			WHERE post_cat ='".$post_id."'";
-	
-	mysqli_query($db, $sql);
-	mysqli_query($db, $sql2);	
-}
-									
 		if(!(isset($_SESSION['signed_in'])))
 		{
 			//the user is not signed in
@@ -78,75 +80,24 @@ if (isset($_POST['del'])) {
 			
 		}
 		else
-		{		
-			if(empty($_GET['id']))
-			{	
-				//No PID Make a Post
-				if($_SERVER['REQUEST_METHOD'] != 'POST')
-				{
-					
-					$sql = "SELECT topic_id, topic_subject FROM topics";
-					$stmt12 = $db->prepare($sql);
-					$stmt12->execute();
-					$stmt12->bind_result($tID, $tName);
-					echo '<form method="post" action="" class="contact-form2">
-						Thread: <input type="text" name="post_title" />
-						<br><br>Topic:'; 
-					//Needs to be required
-					echo '<select name="topic_id">';
-						while($stmt12->fetch())
+		{	
+
+			echo '<div class="container"><div class="row"><div style="margin:0 auto;">';
+			
+				$sql5 = "SELECT topic_id, topic_subject FROM topics";
+				$stmt = $db->query($sql5);
+					echo '<select name="selectb" id="selectb"><option selected value="">Select Topic</option>';
+						while($topic_array = $stmt->fetch_assoc())
 						{
-							echo '<option value="' . $tID . '">' . $tName . '</option>';
+							echo '<option value="topic.php?id=' . $topic_array['topic_id'] . '">' . $topic_array['topic_subject'].'</option>';
 						}
-					echo '</select>';	
-						
-					echo '<br><br><br>Post: <textarea cols="50" name="post_content" /></textarea>
-						<br><br><br><input type="submit" value="Post" class="btn btn-load"/>
-					 </form>';									
-					$stmt12->close();
-				}
-				else
-				{
+						echo '</select></div></div></div>';
 
-					//post_id 	post_content 	post_date 	post_topic 	post_by 	post_cat											
-					$sql2 = 'INSERT INTO
-								posts(post_content,
-									  post_date,
-									  post_topic,
-									  post_by,
-									  post_cat,
-									  post_title,
-									  post_reply)
-							VALUES
-								("' . mysql_real_escape_string($_POST['post_content']) . '",
-									  NOW(),
-									  "' . $_POST['topic_id'] . '",
-									  "' . $_SESSION['user_id'] . '",
-									  0,
-									  "' . $_POST['post_title'] . '",
-									  0
-								)';
-
-					if(!($stmt15 = $db->query($sql2)))
+					if (!(empty($_GET['id'])))
 					{
-						echo 'An error occured while inserting your post. Please try again later.';
-					}
-					else
-					{
+						$PID = $_GET['id'];
+						$sql = "SELECT x.post_id, y.topic_id, x.post_content, y.topic_subject, DATE_FORMAT(x.post_date, '%b,%D'), x.post_by, x.post_cat, x.post_title, x.post_reply FROM posts x INNER JOIN topics y ON y.topic_id=x.post_topic WHERE y.topic_id='" . $PID . "' ORDER BY x.post_topic ASC";
 
-						echo 'You have successfully posted <a href="index.php"> Back To Home</a>.';
-					}
-				
-				}
-			}
-			else
-			{
-					
-					$PID = $_GET['id'];
-					//Users Read Posts for Topic
-					//$PID = mysql_real_escape_string($_GET['id']);
-					$sql = "SELECT x.post_id, y.topic_id, x.post_content, y.topic_subject, DATE_FORMAT(x.post_date, '%b,%D'), x.post_by, x.post_cat, x.post_title, x.post_reply FROM posts x INNER JOIN topics y ON y.topic_id=x.post_topic WHERE y.topic_id='" . $PID . "' ORDER BY x.post_topic ASC";
-					
 					$stmt16 = $db->query($sql);
 						//prepare the table
 						echo '<table style="border:none;">';
@@ -160,14 +111,14 @@ if (isset($_POST['del'])) {
 									echo '<td class="left">';
 										echo '<h4>' . $row['post_title'] . '</h4><hr style="width:70%;">';
 										echo '<h5>' . $row['post_content'] . '</h5>';
-										echo '<div style="padding-left:80px;"><h5><a id="user4" class="btn btn-load" href="post.php?id=' . $row['topic_id'] . '&pid=' . $row['post_id'] . '"> Reply to: ' . $row['post_title'] . '</a></h5></div><br><hr style="width:70%; display:inline;"><a id="admin1" href="admin.php?id=' . $row['post_by'] . '"> Admin </a>';
-								if ($row['post_id'] == $row['post_by'])
+										echo '<div style="padding-left:80px;"><h5><a id="user4" class="btn btn-load" href="post.php?id=' . $row['topic_id'] . '&pid=' . $row['post_id'] . '"> Reply to: ' . $row['post_title'] . '</a></h5></div><br><hr style="width:70%; display:inline;">';
+								if (($row['post_id'] == $row['post_by']) && ($_SESSION['user_level'] != 'Readonly'))
 								{
-									echo '<form id="delete" method="post" action="">
+									echo '<div style="float:right;"><form id="delete" method="post" action="" class="contact-form2">
 										<input id="del"  type="hidden" name="del" value="'.$row['post_id'].'"></input>	
 										<div style="left-padding:100px;"><input id="delete1" name="delete1" type="submit" value="Delete Thread!" class="btn btn-load"/></div></div><hr style="width:70%;">
-									</form>
-									<hr style="width:70%;">';
+										</form></div>
+										<hr style="width:70%;">';
 								}
 									echo '</td>';
 									echo '</tr>';
@@ -186,7 +137,7 @@ if (isset($_POST['del'])) {
 										echo '<td>';
 										echo '<div style="padding-left:50px;"><h4>' . $row2['post_title'] . '</h4></div><hr style="width:55%;">';
 										echo '<div style="padding-left:75px;"><h5>&nbsp;&nbsp;&nbsp;&nbsp;' . $row2['post_content'] . '</h5></div>';
-										echo '<div style="padding-left:75px;"><h5><a id="user5" class="btn btn-load" href="post.php?id=' . $row['topic_id'] . '&pid=' . $pID . '"> Reply to: ' . $row['post_title'] . '</a></h5></div><br><hr style="width:70%;"><div style="padding-left:75px;"><a id="admin2" href="admin.php?id=' . $row2['post_by'] . '"> Admin </a></div><hr style="width:70%;">';																	
+										echo '<div style="padding-left:75px;"><h5><a id="user5" class="btn btn-load" href="post.php?id=' . $row['topic_id'] . '&pid=' . $pID . '"> Reply to: ' . $row['post_title'] . '</a></h5></div><br><hr style="width:70%;"><hr style="width:70%;">';																	
 										echo '</td>';
 									echo '</tr>';
 									}														
@@ -195,8 +146,25 @@ if (isset($_POST['del'])) {
 						}
 						echo '</table>';													
 						$stmt16 -> free();
+					}
 
-						}
+				if ($_SESSION['signed_in'] != "Readonly" )
+				{
+										
+					if (isset($_POST['del'])) {
+					$post_id = $_POST['del'];
+					$sql = "DELETE
+							FROM posts
+							WHERE post_id ='".$post_id."'";
+					$sql2 = "DELETE
+							FROM posts
+							WHERE post_cat ='".$post_id."'";
+					
+					mysqli_query($db, $sql);
+					mysqli_query($db, $sql2);	
+					}					
+					
+				}
 		}
 						
 
